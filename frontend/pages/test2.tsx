@@ -1,6 +1,5 @@
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
-
 import axios from "axios";
 import { User, UserSelect } from "@/components/User";
 
@@ -12,8 +11,8 @@ type Message = {
 };
 
 type MessagerieFormData = {
-  message_send : string
-}
+  message_send: string;
+};
 
 export default function Messagerie() {
   const { register, handleSubmit, watch } = useForm<MessagerieFormData>();
@@ -24,7 +23,7 @@ export default function Messagerie() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await axios.post(
+        const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/apimessage`,
           {
             headers: {
@@ -43,34 +42,33 @@ export default function Messagerie() {
   }, []);
 
   const handleUserSelected = (userId: any) => {
-    console.log(userId)
+    console.log(userId);
     setSelectedUserId(userId);
   };
 
-  const onSubmit = async (data:any) => {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/apimessage`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
+  const onSubmit = async (data: any) => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/apimessage`,
+        {
           message_send: data.message_send,
           id_user: selectedUserId ?? null,
-        }),
-      }
-    );
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
-
-    const jsonResponse = await response.json();
-    setMessage(jsonResponse.message);
-    // Ajouter le nouveau message à l'état (state) de messages
-    setMessagesList([...messagesList, ...jsonResponse]);
-    console.log(message)
+      const newMessage = response.data;
+      setMessage(newMessage.message);
+      setMessagesList([...messagesList, newMessage]);
+      console.log(message);
+    } catch (error) {
+      console.log(error);
+    }
   };
-
 
   return (
     <>
@@ -80,7 +78,7 @@ export default function Messagerie() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <UserSelect onUserSelected={handleUserSelected}></UserSelect>
         <label>
-          Message de test :
+          Message de test:
           <input {...register("message_send")} />
         </label>
         <button type="submit">Envoyer</button>

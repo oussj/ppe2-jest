@@ -23,4 +23,4 @@ export const useApi = () => {
   };
 
   return { get, post };
-};
+}

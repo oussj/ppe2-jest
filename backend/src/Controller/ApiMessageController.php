@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class ApiMessageController extends AbstractController
 {
-    #[Route('/apimessage', name: 'app_api_message', methods:['POST'])]
+    #[Route('/apimessage', name: 'app_api_message', methods:['GET', 'POST'])]
     public function index(Request $request, MessagesRepository $messagesRepository): Response
     {
         $data = json_decode(
@@ -37,10 +37,12 @@ class ApiMessageController extends AbstractController
         // Persist the entity to the database
         $messagesRepository->save($message, true);
         dump($message);
-        return new JsonResponse([$content]);
+        return new JsonResponse($content, 200, [
+            'Content-Type' => 'application/json'
+        ]);new JsonResponse([$content]);
     }
 
-    #[Route('/apiuser', name: 'app_user_api', methods: ['POST'])]
+    #[Route('/apiuser', name: 'app_user_api', methods: ['POST','GET'])]
     public function callUser (UserRepository $userRepository, SerializerInterface $serializerInterface): Response
     {
         $users = $userRepository->findAll();

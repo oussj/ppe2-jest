@@ -8,7 +8,7 @@ export type User = {
 };
 
 type UserProps = {
-  onUserSelected: (User: any) => void;
+  onUserSelected: (user: any) => void;
 };
 
 export const UserSelect = ({ onUserSelected }: UserProps) => {

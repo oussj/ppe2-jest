@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import axios from "axios";
@@ -6,6 +6,7 @@ import axios from "axios";
 const Login = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [token, setToken] = useState("");
   const {
     register,
     handleSubmit,
@@ -13,34 +14,40 @@ const Login = () => {
   } = useForm();
   const router = useRouter();
 
-  const onSubmit = async (data:any)=> {
+  const onSubmit = async (data) => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/login_check",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/login_check`,
         {
           username: data.username,
           password: data.password,
         }
       );
-      // setToken(response.data.token);
-      // setEmail(response.data.email);
+      localStorage.setItem("token", response.data.token);
+
+      // Si la connexion réussit, stockez l'état de connexion de l'utilisateur et redirigez-le vers la page de profil
       setIsAuthenticated(true);
-      document.cookie = `username=${data.username}; path=/`;
-      router.push("/acceuil");
+      setToken(response.data.token);
+
+      router.push("/test2");
     } catch (error) {
-      // setErrorMessage(error.message);
+      setErrorMessage(error.message);
     }
   };
 
   const handleLogout = () => {
+    // Réinitialiser l'état de connexion de l'utilisateur et rediriger l'utilisateur vers la page de connexion
     setIsAuthenticated(false);
     router.push("/login");
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto">
       {!isAuthenticated && (
-        <form onSubmit={handleSubmit(onSubmit)} className="max-w-md mx-auto">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="max-w-sm mx-auto mt-8"
+        >
           <div className="mb-4">
             <label
               htmlFor="username"
@@ -51,10 +58,10 @@ const Login = () => {
             <input
               type="text"
               {...register("username", { required: true })}
-              className="border border-gray-400 rounded-md py-2 px-3 w-full focus:outline-none focus:border-blue-500"
+              className="w-full border border-gray-400 rounded py-2 px-3"
             />
             {errors.username && (
-              <span className="text-red-500">Username is required</span>
+              <span className="text-sm text-red-500">Username is required</span>
             )}
           </div>
           <div className="mb-4">
@@ -67,29 +74,31 @@ const Login = () => {
             <input
               type="password"
               {...register("password", { required: true })}
-              className="border border-gray-400 rounded-md py-2 px-3 w-full focus:outline-none focus:border-blue-500"
+              className="w-full border border-gray-400 rounded py-2 px-3"
             />
             {errors.password && (
-              <span className="text-red-500">Password is required</span>
+              <span className="text-sm text-red-500">Password is required</span>
             )}
           </div>
           <div className="mb-4">
             <button
               type="submit"
-              className="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="w-full bg-blue-500 text-white py-2 px-4 rounded"
             >
               Login
             </button>
           </div>
-          {errorMessage && <div className="text-red-500">{errorMessage}</div>}
+          {errorMessage && (
+            <div className="text-sm text-red-500">{errorMessage}</div>
+          )}
         </form>
       )}
       {isAuthenticated && (
-        <div>
-          <p>You are logged in!</p>
+        <div className="max-w-sm mx-auto mt-8">
+          <p className="text-center">You are logged in!</p>
           <button
             onClick={handleLogout}
-            className="bg-red-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="w-full bg-red-500 text-white py-2 px-4 rounded mt-4"
           >
             Logout
           </button>
