@@ -18,7 +18,8 @@ export const UserSelect = ({ onUserSelected }: UserProps) => {
     const fetchUsers = async () => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/apiuser`,
-        {
+        {}
+,        {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,

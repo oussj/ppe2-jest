@@ -14,33 +14,39 @@ use Symfony\Component\Serializer\SerializerInterface;
 class ApiMessageController extends AbstractController
 {
     #[Route('/apimessage', name: 'app_api_message', methods:['GET', 'POST'])]
-    public function index(Request $request, MessagesRepository $messagesRepository): Response
+    public function index(Request $request, MessagesRepository $messagesRepository, SerializerInterface $serializerInterface): Response
     {
         $data = json_decode(
             $request->getContent(),
             true
         );
         $content = $data['content'];
-        $senderId = $data['sender_id'];
         $receiverId = $data['receiver_id'];
+    
+        $senderId = intval($this->getUser()->getId());
+
 
         $message = new Messages();
         $message->setContent($content);
-
+        
         // Retrieve sender and receiver entities from their IDs
-        $sender = $messagesRepository->find($senderId);
-        $receiver = $messagesRepository->find($receiverId);
-
-        $message->setSender($sender);
-        $message->setReceiver($receiver);
+        //$receiver = $receiverId;
+        $message->setSenderId($senderId);
+        $message->setReceiverId($receiverId);
+       
 
         // Persist the entity to the database
         $messagesRepository->save($message, true);
         dump($message);
-        return new JsonResponse($content, 200, [
+        
+        
+        $jsonContent = $serializerInterface->serialize($message, 'json');
+        $response = new JsonResponse($jsonContent, 200, [
             'Content-Type' => 'application/json'
-        ]);new JsonResponse([$content]);
+        ]);
+        return $response;
     }
+
 
     #[Route('/apiuser', name: 'app_user_api', methods: ['POST','GET'])]
     public function callUser (UserRepository $userRepository, SerializerInterface $serializerInterface): Response

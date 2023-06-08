@@ -16,14 +16,11 @@ class Messages
     #[ORM\Column(length: 255)]
     private ?string $content = null;
 
-    #[ORM\ManyToOne(inversedBy: 'sender_id')]
-    private ?User $sender = null;
+    #[ORM\Column]
+    private ?int $receiver_id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'receiver_id')]
-    private ?User $receiver = null;
-
-    #[ORM\ManyToOne(inversedBy: 'messages')]
-    private ?User $id_user = null;
+    #[ORM\Column]
+    private ?int $sender_id = null;
 
     public function getId(): ?int
     {
@@ -42,38 +39,26 @@ class Messages
         return $this;
     }
 
-    public function getSender(): ?user
+    public function getReceiverId(): ?int
     {
-        return $this->sender;
+        return $this->receiver_id;
     }
 
-    public function setSender(?user $sender): self
+    public function setReceiverId(int $receiver_id): self
     {
-        $this->sender = $sender;
+        $this->receiver_id = $receiver_id;
 
         return $this;
     }
 
-    public function getReceiver(): ?user
+    public function getSenderId(): ?int
     {
-        return $this->receiver;
+        return $this->sender_id;
     }
 
-    public function setReceiver(?user $receiver): self
+    public function setSenderId(int $sender_id): self
     {
-        $this->receiver = $receiver;
-
-        return $this;
-    }
-
-    public function getIdUser(): ?User
-    {
-        return $this->id_user;
-    }
-
-    public function setIdUser(?User $id_user): self
-    {
-        $this->id_user = $id_user;
+        $this->sender_id = $sender_id;
 
         return $this;
     }
